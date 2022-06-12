@@ -1,21 +1,42 @@
-import { Image, Scroll, ScrollControls } from "@react-three/drei";
-import { Canvas } from "@react-three/fiber";
+import { Image, Scroll, ScrollControls, useScroll } from "@react-three/drei";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { useRef } from "react";
 import "./App.css";
 
 const Images = () => {
+  // get viewport
+  const { width, height } = useThree((state) => state.viewport);
+  const group = useRef(); // get ref={group}
+  const data = useScroll();
+
+  // animation frame
+  useFrame((state, delta, xrFrame) => {
+    // scale image with scroll
+    group.current.children[0].material.zoom = 1 + data.range(0, 1 / 3) / 3;
+    group.current.children[1].material.zoom = 1 + data.range(0, 1 / 3) / 3;
+    group.current.children[2].material.zoom =
+      1 + data.range(1.15 / 3, 1 / 3) / 3;
+    group.current.children[3].material.zoom =
+      1 + data.range(1.15 / 3, 1 / 3) / 3;
+  });
+
   return (
-    <group>
-      <Image url="./images/img1.jpeg" scale={[4, 3, 1]} position={[-1, 0, 1]} />
+    <group ref={group}>
+      <Image
+        url="./images/img1.jpeg"
+        scale={[4, height, 1]}
+        position={[-1, 0, 1]}
+      />
       <Image url="./images/img2.jpeg" scale={3} position={[2, 0, 1]} />
       <Image
         url="./images/img3.jpeg"
         scale={[1, 3.5, 1]}
-        position={[-2.3, 0, 2]}
+        position={[-2.3, -height, 2]}
       />
       <Image
         url="./images/img4.jpeg"
         scale={[1.4, 2, 1]}
-        position={[-1.3, 0, 3.2]}
+        position={[1.3, -height - 0, 3, 3.2]}
       />
     </group>
   );
@@ -24,9 +45,17 @@ const Images = () => {
 function App() {
   return (
     <Canvas>
-      <ScrollControls pages={2} damping={3}>
+      <ScrollControls pages={2} damping={3} horizontal={false} infinite={false}>
         <Scroll>
           <Images />
+        </Scroll>
+        <Scroll html>
+          <h1 style={{ position: "absolute", top: "60vh", left: "1.5em" }}>
+            Be
+          </h1>
+          <h1 style={{ position: "absolute", top: "140vh", left: "20vw" }}>
+            Creative
+          </h1>
         </Scroll>
       </ScrollControls>
     </Canvas>
